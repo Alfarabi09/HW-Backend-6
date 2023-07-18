@@ -19,6 +19,12 @@
         <input type="submit" value="Add">
     </form>
 
+    <h2>Add Flower</h2>
+    <form method="POST" action="/cart/items">
+        <input type="text" name="flower_id"><br>
+        <input type="submit" value="Add to cart">
+    </form>
+
     <h2>Flower List</h2>
     <ul>
         {% for flower in flowers %}
