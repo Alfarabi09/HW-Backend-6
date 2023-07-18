@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Cart</h1>
+
+    {% if flowers %}
+    <h2>Cart Items</h2>
+    <ul>
+        {% for flower in flowers %}
+        <li>ID: {{ flower.id }}, Name: {{ flower.name }}, Cost: {{ flower.cost }}</li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>Cart is empty</p>
+    {% endif %}
+</body>
+</html>

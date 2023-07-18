@@ -35,12 +35,12 @@ def login(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
 
 def create_jwt(user_id: int) -> str:
-    body = {"user_id", user_id}
-    token = jwt.encode(body, "qwe", "HS256")
+    body = {"user_id": user_id}
+    token = jwt.encode(body, "qwe", algorithm="HS256")
     return token
 
 def decode_jwt(token: str) -> int:
-    data = jwt.decode(token, "qwe", "HS256")
+    data = jwt.decode(token, "qwe")
     return data["user_id"]
 
 @app.post("/login")
@@ -75,3 +75,37 @@ def get_profile(
 
         },
     )
+
+
+@app.get("/flowers")
+def get_flowers(request: Request):
+    return templates.TemplateResponse("flowers.html", {"request": request, "flowers": flowers_repository.flowers})
+
+@app.post("/flowers")
+def post_flowers(request: Request, name: str = Form(...), count: int = Form(...), cost: int = Form(...)):
+    flower = Flower(name=name, count=count, cost=cost)
+    flowers_repository.save(flower)
+    return RedirectResponse("/flowers", status_code=303)
+
+@app.post("/cart/items")
+def post_cart_items(request: Request, flower_id: int = Form(...)):
+    response = RedirectResponse("/flowers", status_code=303)
+    cart_items = request.cookies.get("cart_items")
+    if cart_items:
+        cart_items += f",{flower_id}"
+    else:
+        cart_items = str(flower_id)
+    response.set_cookie("cart_items", cart_items)
+    return response
+
+@app.get("/cart/items")
+def get_cart_items(request: Request):
+    cart_items = request.cookies.get("cart_items")
+    flowers = []
+    if cart_items:
+        flower_ids = cart_items.split(",")
+        for flower_id in flower_ids:
+            flower = flowers_repository.get_by_id(int(flower_id))
+            if flower:
+                flowers.append(flower)
+    return templates.TemplateResponse("cart.html", {"request": request, "flowers": flowers})
