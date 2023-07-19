@@ -5,6 +5,8 @@ from .flowers_repository import Flower, FlowersRepository
 from .purchases_repository import Purchase, PurchasesRepository
 from .users_repository import User, UsersRepository
 from jose import jwt
+from typing import List
+import json
 
 app = FastAPI()
 templates = templating.Jinja2Templates("templates")
@@ -74,32 +76,7 @@ def get_profile(
         },
     )
 
-@app.get("/cart/items")
-def get_cart_items(request: Request, token: str = Cookie()):
-    flower_id = decode_jwt(token)
-    flower = flowers_repository.get_by_id(flower_id)
-    #cart_items = request.cookies.get("cart_items")
-    #total_cost = 0
-    #cart_flowers = []
-    #
-    #if cart_items:
-    #    try:
-    #        flower_id = decode_jwt(cart_items)
-    #        flower = flowers_repository.get_by_id(flower_id)
-    #        if flower:
-    #            cart_flowers.append(flower)
-    #            total_cost += flower.cost
-    #    except jwt.DecodeError:
-    #        pass
-#
-    return templates.TemplateResponse(
-        "car't.html", {
-            "request": request, 
-            "flower": flower,
-            #"cart_flowers": cart_flowers, 
-            #"total_cost": total_cost,
-        }
-    )
+
 
 @app.get("/flowers")
 def get_flowers(request: Request):
@@ -112,11 +89,36 @@ def post_flowers(request: Request, name: str = Form(...), count: int = Form(...)
     return RedirectResponse("/flowers", status_code=303)
 
 
+def get_cart_items(request: Request):
+    cart_items = request.cookies.get("cart_items")
+    if cart_items:
+        cart_items = json.loads(cart_items)
+    else:
+        cart_items = []
+    return cart_items
+
 
 @app.post("/cart/items")
-def post_cart_items(request: Request, flower_id: int = Form(...)):
-    token = create_jwt(flower_id)
-    print(token)
-    response = RedirectResponse("/flowers", status_code=303)
-    response.set_cookie(key="cart_items", value=token)
+def add_to_cart(request: Request, flower_id: int = Form(...)):
+    cart_items = get_cart_items(request)
+    cart_items.append(flower_id)
+    print(cart_items)
+    response = RedirectResponse(url="/flowers", status_code=303)
+    response.set_cookie(key="cart_items", value=json.dumps(cart_items))
     return response
+
+@app.get("/cart/items")
+def show_cart(request: Request):
+    cart_items = get_cart_items(request)
+    cart_flowers = []
+    total_cost = 0
+    for item_id in cart_items:
+        flower = flowers_repository.get_by_id(item_id)
+        if flower:
+            cart_flowers.append(flower)
+            total_cost += flower.cost
+
+    return templates.TemplateResponse("cart.html", {"request": request, "cart_flowers": cart_flowers, "total_cost": total_cost})
+
+
+

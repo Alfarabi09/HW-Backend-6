@@ -8,15 +8,16 @@
 <body>
     <h1>Cart</h1>
 
-    {% if flowers %}
-    <h2>Cart Items</h2>
     <ul>
-        {% for flower in flowers %}
+        {% for flower in cart_flowers %}
         <li>ID: {{ flower.id }}, Name: {{ flower.name }}, Cost: {{ flower.cost }}</li>
         {% endfor %}
     </ul>
-    {% else %}
-    <p>Cart is empty</p>
-    {% endif %}
+
+    <p>Total Cost: {{ total_cost }}</p>
+
+    <a href="/flowers">Back to Flowers</a>
 </body>
+
+
 </html>

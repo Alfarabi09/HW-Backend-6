@@ -19,17 +19,20 @@
         <input type="submit" value="Add">
     </form>
 
-    <h2>Add Flower</h2>
+    <h2>Add Flower to Cart</h2>
     <form method="POST" action="/cart/items">
-        <input type="text" name="flower_id"><br>
+        <label>Flower ID:</label>
+        <input type="number" name="flower_id"><br>
         <input type="submit" value="Add to cart">
     </form>
 
     <h2>Flower List</h2>
     <ul>
         {% for flower in flowers %}
-        <li>{{ flower.name }} - Count: {{ flower.count }}, Cost: {{ flower.cost }}</li>
+        <li>{{ flower.name }} - Count: {{ flower.count }}, Cost: {{ flower.cost }} </li>
         {% endfor %}
     </ul>
+
 </body>
+
 </html>
